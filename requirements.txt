@@ -2,5 +2,6 @@ streamlit
 agno
 google-genai
 duckduckgo-search
+requests
+Pillow
 serpapi
-pillow
