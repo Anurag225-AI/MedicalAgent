@@ -78,11 +78,11 @@ st.markdown("""
 # -- 👨‍⚕️ Title & Introduction
 st.markdown("""
     <h1 style='font-size: 30px; color: #2f729b; margin-bottom: 20px;'>
-        🩺Medical Image Analysis Agent🔬
+        Medical Image Analysis Agent
     </h1>
 """, unsafe_allow_html=True)
 st.markdown("""
-    Welcome to the **Medical Image Analysis Agent**! 📸  
+    Welcome to the **Medical Image Analysis Agent**!  
     Upload a medical image (X-ray, MRI, CT, Ultrasound, etc.), and our AI-powered system will analyze it, providing detailed findings, diagnosis, and research insights.  
     Let's get started!
 """)
