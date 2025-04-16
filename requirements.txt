@@ -2,3 +2,5 @@ streamlit
 agno
 google-genai
 duckduckgo-search
+serpapi
+pillow
