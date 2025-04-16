@@ -1,145 +1,152 @@
-import os
-from PIL import Image as PILImage
-from agno.agent import Agent
-from agno.models.google import Gemini
-from agno.tools.duckduckgo import DuckDuckGoTools
-from agno.media import Image as AgnoImage
+import requests
 import streamlit as st
+from serpapi import GoogleSearch
 from PIL import Image
+from io import BytesIO
+import base64
 
-# Set your API Key (Replace with your actual key)
-GOOGLE_API_KEY = "AIzaSyCr35hxFrpVsbNWgqOwU6PwmkpwLmO2dJA"
-os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+# API Keys
+GEMINI_API_KEY = "your-gemini-api-key"
+SERPAPI_API_KEY = "your-serpapi-api-key"
 
-# Ensure API Key is provided
-if not GOOGLE_API_KEY:
-    raise ValueError("⚠️ Please set your Google API Key in GOOGLE_API_KEY")
+# Currency conversion (USD to INR)
+USD_TO_INR = 83.5
 
-# Initialize the Medical Agent
-medical_agent = Agent(
-    model=Gemini(id="gemini-2.0-flash-exp"),
-    tools=[DuckDuckGoTools()],
-    markdown=True
-)
 
-# Medical Analysis Query
-query = """
-You are a highly skilled medical imaging expert with extensive knowledge in radiology and diagnostic imaging. Analyze the medical image and structure your response as follows:
+# 🛍️ Fetch Shopping Results
+def get_shopping_results(query):
+    params = {
+        "q": query,
+        "api_key": SERPAPI_API_KEY,
+        "engine": "google",
+        "google_domain": "google.com",
+        "gl": "us",
+        "hl": "en"
+    }
 
-### 1. Image Type & Region
-- Identify imaging modality (X-ray/MRI/CT/Ultrasound/etc.).
-- Specify anatomical region and positioning.
-- Evaluate image quality and technical adequacy.
+    search = GoogleSearch(params)
+    results = search.get_dict()
+    return results.get("shopping_results", [])
 
-### 2. Key Findings
-- Highlight primary observations systematically.
-- Identify potential abnormalities with detailed descriptions.
-- Include measurements and densities where relevant.
 
-### 3. Diagnostic Assessment
-- Provide primary diagnosis with confidence level.
-- List differential diagnoses ranked by likelihood.
-- Support each diagnosis with observed evidence.
-- Highlight critical/urgent findings.
+# 🎨 Logo to Base64 for Sidebar
+def get_base64_logo(img_path):
+    img = Image.open(img_path)
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode()
 
-### 4. Patient-Friendly Explanation
-- Simplify findings in clear, non-technical language.
-- Avoid medical jargon or provide easy definitions.
-- Include relatable visual analogies.
 
-### 5. Research Context
-- Use DuckDuckGo search to find recent medical literature.
-- Search for standard treatment protocols.
-- Provide 2-3 key references supporting the analysis.
+# 💡 Shopping Assistant Logic
+def shopping_assistant(query):
+    shopping_results = get_shopping_results(query)
 
-Ensure a structured and medically accurate response using clear markdown formatting.
-"""
+    if not shopping_results:
+        return f"No shopping results found for '{query}'. Please try a more specific product."
 
-# Function to analyze medical image
-def analyze_medical_image(image_path):
-    """Processes and analyzes a medical image using AI."""
-    
-    # Open and resize image
-    image = PILImage.open(image_path)
-    width, height = image.size
-    aspect_ratio = width / height
-    new_width = 500
-    new_height = int(new_width / aspect_ratio)
-    resized_image = image.resize((new_width, new_height))
+    result_summary = f"Found {len(shopping_results)} shopping results for '{query}'.\n\n"
+    result_summary += "### 🔝 Top 3 Results:\n\n"
 
-    # Save resized image
-    temp_path = "temp_resized_image.png"
-    resized_image.save(temp_path)
+    for i, item in enumerate(shopping_results[:3]):
+        title = item.get("title", "N/A")
+        link = item.get("link", "#")
+        source = item.get("source", "N/A")
+        price = item.get("price", "$0").replace("$", "")
+        image_url = item.get("thumbnail", "")
 
-    # Create AgnoImage object
-    agno_image = AgnoImage(filepath=temp_path)
+        try:
+            price_inr = round(float(price.replace(",", "")) * USD_TO_INR, 2)
+            price_display = f"₹{price_inr:,.2f}"
+        except:
+            price_display = "Price not available"
 
-    # Run AI analysis
-    try:
-        response = medical_agent.run(query, images=[agno_image])
-        return response.content
-    except Exception as e:
-        return f"⚠️ Analysis error: {e}"
-    finally:
-        # Clean up temporary file
-        os.remove(temp_path)
+        result_summary += f"**{i+1}. {title}**\n"
+        result_summary += f"- 💰 **Price**: {price_display}\n"
+        result_summary += f"- 🌐 **Source**: {source}\n"
+        result_summary += f"- 🔗 [View Product]({link})\n"
+        result_summary += f"- 🖼️ ![Product Image]({image_url})\n\n"
 
-# Streamlit UI setup
-st.set_page_config(page_title="Medical Image Analysis Agent", layout="centered")
+    return result_summary
 
-# Inject custom sidebar CSS styling
-st.markdown("""
-    <style>
+
+# 🌐 Streamlit App UI
+def main():
+    st.set_page_config(page_title="Shopping Assistant", layout="wide")
+
+    # Inject Custom CSS
+    st.markdown("""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        html, body, [class*="css"] {
+            font-family: 'Poppins', sans-serif;
+        }
+
         [data-testid="stSidebar"] {
             width: 320px !important;
             background: linear-gradient(to bottom right, #003D62, #3497BA);
             color: white;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
         }
-    </style>
-""", unsafe_allow_html=True)
 
-st.title("🩺Medical Image Analysis🔬")
-st.markdown(
-    """
-    Welcome to the **Medical Image Analysis Agent**! 📸  
-    Upload a medical image (X-ray, MRI, CT, Ultrasound, etc.), and our AI-powered system will analyze it, providing detailed findings, diagnosis, and research insights.  
-    Let's get started!
-    """
-)
+        [data-testid="stSidebar"] h1,
+        [data-testid="stSidebar"] h2,
+        [data-testid="stSidebar"] h3,
+        [data-testid="stSidebar"] p {
+            color: white !important;
+        }
 
-# Upload image section
-logo = Image.open("/workspaces/MedicalAgent/static/Hoonartek-V25-White-Color.png")  # Replace with the path to your logo file
-st.sidebar.image(logo, width=220, border-radius=10)  
-st.sidebar.title("Use Case Details")
-st.sidebar.markdown("This module uses Gemini 2.0 Flash and Agno Agents to analyze radiology images, delivering expert AI insights for diagnostics and screening")
-st.sidebar.header("Model Use:")
-st.sidebar.markdown("Gemini 2.0 Flash")
-uploaded_file = st.sidebar.file_uploader("Choose a medical image file", type=["jpg", "jpeg", "png", "bmp", "gif"])
+        h1, h2, h3, h4, h5, h6, p {
+            font-family: 'Poppins', sans-serif;
+        }
 
-# Button to trigger analysis
-if uploaded_file is not None:
-    # Display the uploaded image in Streamlit
-    st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
+        img {
+            border-radius: 8px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Logo and Sidebar Content
+    try:
+        logo_base64 = get_base64_logo("static/Hoonartek-V25-White-Color.png")
+        st.sidebar.markdown(
+            f"""
+            <div style="text-align: center;">
+                <img src="data:image/png;base64,{logo_base64}" style="width: 220px; margin-bottom: 20px; border-radius: 0px;" />
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    except Exception as e:
+        st.sidebar.warning("Logo not found or failed to load.")
+
+    st.sidebar.title("Shopping Assistant AI")
+    st.sidebar.markdown("This shopping assistant provides friendly answers and personalized support. This Model is perfect for enhancing websites or customer service systems.")
+    st.sidebar.header("Model Used:")
+    st.sidebar.markdown("Google SerpApi and Gemini 2.0 Flash")
+
+    # Main UI
+    st.markdown("""
+    <h1 style='font-size: 30px; color: #2f729b; margin-bottom: 20px; text-align: center'>
+        Smart Shopping Assistant
+    </h1>
+    """, unsafe_allow_html=True)
     
-    if st.sidebar.button("Analyze Image"):
-        with st.spinner("🔍 Analyzing the image... Please wait."):
-            # Save the uploaded image to a temporary file
-            image_path = f"temp_image.{uploaded_file.type.split('/')[1]}"
-            with open(image_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-            
-            # Run analysis on the uploaded image
-            report = analyze_medical_image(image_path)
-            
-            # Display the report
-            st.subheader("📋 Analysis Report")
-            st.markdown(report, unsafe_allow_html=True)
-            
-            # Clean up the saved image file
-            os.remove(image_path)
-else:
-    st.warning("⚠️ Please upload a medical image to begin analysis.")
+    st.markdown("""
+    <h2 style='font-size: 20px; color: #2f729b; margin-bottom: 20px; text-align: center'>
+    Welcome to the Smart Shopping Agent!  
+    I will help you to buy the best product!
+    </h2>
+    """, unsafe_allow_html=True)
+
+    query = st.text_input("Enter a product name:", placeholder="e.g., Dell XPS 13 Laptop", key="product_query")
+
+    if query:
+        with st.spinner("Searching for products..."):
+            results = shopping_assistant(query)
+            st.markdown(results)
+
+
+# 🚀 Run App
+if __name__ == "__main__":
+    main()
