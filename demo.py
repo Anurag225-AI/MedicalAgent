@@ -82,10 +82,11 @@ st.markdown("""
     </h1>
 """, unsafe_allow_html=True)
 st.markdown("""
-    <h1 style='font-size: 20px; color: #2f729b; margin-bottom: 10px; text-align: center'>
-    Welcome to the **Medical Image Analysis Agent**!  
+    <h2 style='font-size: 20px; color: #2f729b; margin-bottom: 10px; text-align: center'>
+    Welcome to the Medical Image Analysis Agent!  
     Upload a medical image (X-ray, MRI, CT, Ultrasound, etc.), and our AI-powered system will analyze it, providing detailed findings, diagnosis, and research insights.  
     Let's get started!
+    </h2>
 """)
 
 # -- 🖼 Logo with Rounded Corners in Sidebar
@@ -134,4 +135,8 @@ if uploaded_file is not None:
             st.markdown(report, unsafe_allow_html=True)
             os.remove(image_path)
 else:
-    st.warning("⚠️ Please upload a medical image to begin analysis.")
+    st.warning("""
+    <h3 style='text-align: center'>
+    Please upload a medical image to begin analysis.
+    </h3>
+    """)
