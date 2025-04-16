@@ -6,8 +6,8 @@ from io import BytesIO
 import base64
 
 # API Keys
-GEMINI_API_KEY = "your-gemini-api-key"
-SERPAPI_API_KEY = "your-serpapi-api-key"
+GEMINI_API_KEY = "AIzaSyAVwoZmGiYvSj8sbD2wOAvjI3f1crjT9hU"
+SERPAPI_API_KEY = "4237ce6a76722c312bd2f1f8b26b71f9ca86bc080a82d3e282b0df4eda4caa62"
 
 # Currency conversion (USD to INR)
 USD_TO_INR = 83.5
@@ -71,7 +71,7 @@ def shopping_assistant(query):
 
 # 🌐 Streamlit App UI
 def main():
-    st.set_page_config(page_title="Shopping Assistant", layout="wide")
+    st.set_page_config(page_title="Smart Shopping Assistant", layout="wide")
 
     # Inject Custom CSS
     st.markdown("""
@@ -120,7 +120,7 @@ def main():
     except Exception as e:
         st.sidebar.warning("Logo not found or failed to load.")
 
-    st.sidebar.title("Shopping Assistant AI")
+    st.sidebar.title("Smart Shopping Assistant")
     st.sidebar.markdown("This shopping assistant provides friendly answers and personalized support. This Model is perfect for enhancing websites or customer service systems.")
     st.sidebar.header("Model Used:")
     st.sidebar.markdown("Google SerpApi and Gemini 2.0 Flash")
@@ -134,7 +134,7 @@ def main():
     
     st.markdown("""
     <h2 style='font-size: 20px; color: #2f729b; margin-bottom: 20px; text-align: center'>
-    Welcome to the Smart Shopping Agent!  
+    Welcome to the Smart Shopping Assistant!  
     I will help you to buy the best product!
     </h2>
     """, unsafe_allow_html=True)
