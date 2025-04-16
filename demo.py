@@ -77,11 +77,12 @@ st.markdown("""
 
 # -- 👨‍⚕️ Title & Introduction
 st.markdown("""
-    <h1 style='font-size: 30px; color: #2f729b; margin-bottom: 20px;'>
+    <h1 style='font-size: 30px; color: #2f729b; margin-bottom: 10px; text-align: center'>
         Medical Image Analysis Agent
     </h1>
 """, unsafe_allow_html=True)
 st.markdown("""
+    <h1 style='font-size: 20px; color: #2f729b; margin-bottom: 10px; text-align: center'>
     Welcome to the **Medical Image Analysis Agent**!  
     Upload a medical image (X-ray, MRI, CT, Ultrasound, etc.), and our AI-powered system will analyze it, providing detailed findings, diagnosis, and research insights.  
     Let's get started!
