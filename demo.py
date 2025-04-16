@@ -113,7 +113,7 @@ st.sidebar.markdown(
     """
 )
 
-st.sidebar.header("Model Use:")
+st.sidebar.header("Model Used:")
 st.sidebar.markdown("Gemini 2.0 Flash")
 
 # -- 📤 Upload Image
