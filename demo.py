@@ -159,4 +159,3 @@ if uploaded_file is not None:
             st.subheader("📋 Analysis Report")
             st.markdown(report, unsafe_allow_html=True)
             os.remove(image_path)
-
