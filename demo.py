@@ -123,7 +123,7 @@ st.sidebar.markdown(
     This module uses Gemini 2.0 Flash and Agno Agents to analyze radiology images, delivering expert AI insights for diagnostics and screening.
     """
 )
-st.sidebar.header("Model Used:")
+st.sidebar.header("Model Name:")
 st.sidebar.markdown("Gemini 2.0 Flash")
 
 # Main Content
