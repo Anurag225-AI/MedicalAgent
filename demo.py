@@ -10,7 +10,7 @@ from PIL import Image
 from io import BytesIO
 
 # Set API Key
-GOOGLE_API_KEY = "AIzaSyCr35hxFrpVsbNWgqOwU6PwmkpwLmO2dJA"
+GOOGLE_API_KEY = "AIzaSyAVwoZmGiYvSj8sbD2wOAvjI3f1crjT9hU"
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # Initialize Agent
